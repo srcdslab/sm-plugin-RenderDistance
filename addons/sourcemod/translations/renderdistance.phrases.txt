@@ -1,0 +1,37 @@
+"Phrases"
+{
+	"Render Distance"
+	{
+		"en"		"Render Distance"
+	}
+
+	"Enabled"
+	{
+		"en"		"Enabled"
+	}
+
+	"Disabled"
+	{
+		"en"		"Disabled"
+	}
+
+	"Bind Mode"
+	{
+		"en"		"Bind Mode"
+	}
+
+	"Bind Usage"
+	{
+		"en"		"Do \"bind <key> +renderdistance\""
+	}
+
+	"Dont Render Fire"
+	{
+		"en"		"Don't Render Fire"
+	}
+
+	"Distance"
+	{
+		"en"		"Distance"
+	}
+}
