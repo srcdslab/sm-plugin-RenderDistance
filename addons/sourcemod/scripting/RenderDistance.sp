@@ -4,20 +4,20 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <clientprefs>
+#include <multicolors>
 
 #pragma newdecls required
 
-static const char entityList[][] = { "ambient_generic", "color_correction", "env_entity_igniter", "env_fade", "point_viewcontrol",
-									"env_hudhint", "env_physexplosion", "env_shake", "filter_activator_name", "filter_activator_team",
-									"filter_damage_type", "func_buyzone", "func_button", "game_score", "info_player_counterterrorist",
-									"info_player_terrorist", "info_teleport_destination", "path_track", "player_speedmod", "soundent",
-									"point_clientcommand", "point_servercommand", "point_teleport", "worldspawn", "ai_network", "light",
-									"simple_bot", "holiday_gift", "vgui_screen", "info_target", "infodecal", "move_rope", "env_sun",
-									"spraycan", "light_spot", "shadow_control", "item_assaultsuit", "func_bomb_target", "env_fire",
-									"point_viewcontrol", "func_dustmotes", "env_soundscape_triggerable", "trigger_soundscape",
-									"func_physbox_multiplayer", "env_tonemap_controller", "logic_auto", "_firesmoke", "item_kevlar",
-									"planted_c4", "item_defuser", "env_sprite", "func_breakable", "light_environment", "func_brush",
-									"env_explosion", "func_door", "info_overlay", "info_particle_system"};
+static const char entityList[][] = { "_firesmoke", "ai_network", "color_correction", "env_entity_igniter", "env_explosion", "env_fade", \
+									"env_fire", "env_hudhint", "env_physexplosion", "env_shake", "env_sound", "env_soundscape_triggerable", \
+									"env_sprite", "env_sun", "env_tonemap_controller", "filter_activator_name", "filter_activator_team", \
+									"filter_damage_type", "func_breakable", "func_brush", "func_bomb_target", "func_button", "func_door", \
+									"func_dustmotes", "func_physbox_multiplayer", "func_buyzone", "holiday_gift", "info_overlay", \
+									"info_particle_system", "info_player_counterterrorist", "info_player_terrorist", "info_target", \
+									"info_teleport_destination", "infodecal", "item_assaultsuit", "item_defuser", "item_kevlar", \
+									"light", "light_environment", "light_spot", "move_rope", "path_track", "planted_c4", \
+									"point_viewcontrol", "shadow_control", "simple_bot", "soundent", "spraycan", \
+									"trigger_soundscape", "vgui_screen", "worldspawn"};
 
 bool bEnabled[MAXPLAYERS + 1],
 	bBind[MAXPLAYERS + 1],
@@ -38,7 +38,7 @@ public Plugin myinfo =
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.0",
+	version = "3.0.1",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
@@ -50,6 +50,9 @@ public void OnPluginStart()
 		SetFailState("Failed to load gamedata \"render_distance.games.txt\"");
 	}
 
+	LoadTranslations("renderdistance.phrases.txt");
+	LoadTranslations("clientprefs.phrases.txt");
+	
 	StartPrepSDKCall(SDKCall_EntityList);
 	PrepSDKCall_SetFromConf(gameData, SDKConf_Signature, "CGlobalEntityList::FindEntityInSphere()");
 	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
@@ -60,6 +63,7 @@ public void OnPluginStart()
 	delete gameData;
 
 	RegConsoleCmd("sm_renderdistance", cmdRenderDistance);
+	RegConsoleCmd("sm_render", cmdRenderDistance);
 	RegConsoleCmd("+renderdistance", cmdBind);
 	RegConsoleCmd("-renderdistance", cmdBind);
 
@@ -67,6 +71,8 @@ public void OnPluginStart()
 	hCookieBind = RegClientCookie("rendist_bind", "Render Bind Mode", CookieAccess_Public);
 	hCookieDistance = RegClientCookie("rendist_distance", "Render Distance", CookieAccess_Public);
 	hCookieRenderFire = RegClientCookie("rendist_renderfire", "Render Fire", CookieAccess_Public);
+
+	SetCookieMenuItem(ShowRenderCookieHandler, 0, "Show Render Distance Settings");
 }
 
 public void OnClientAuthorized(int client, const char[] auth)
@@ -95,6 +101,15 @@ public void OnClientCookiesCached(int client)
 	bDontRenderFire[client] = view_as<bool>(StringToInt(buffer));
 }
 
+public void ShowRenderCookieHandler(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
+{
+	switch (action)
+	{
+		case CookieMenuAction_SelectOption:
+			ShowRenderMenu(client);
+	}
+}
+
 public Action cmdRenderDistance(int client, int args)
 {
 	ShowRenderMenu(client);
@@ -108,6 +123,15 @@ public Action cmdBind(int client, int args)
 	GetCmdArg(0, prefix, 4);
 	bHolding[client] = prefix[0] == '+';
 
+	// Auto enable/disable if using bind
+	if (bHolding[client] != bEnabled[client])
+		bEnabled[client] = bHolding[client];
+
+	char sEnabled[32], sDisabled[32];
+	FormatEx(sEnabled, sizeof(sEnabled), "{green}%T{default}", "Enabled", client);
+	FormatEx(sDisabled, sizeof(sDisabled), "{red}%T{default}", "Disabled", client);
+	CPrintToChat(client, "[%T] %s", "Render Distance", client, bHolding[client] ? sEnabled : sDisabled);
+	
 	return Plugin_Handled;
 }
 	
@@ -116,18 +140,23 @@ void ShowRenderMenu(int client)
 	Menu menu = new Menu(MenuHandlerRender);
 
 	menu.SetTitle("Render Distance Control");
-
+	menu.SetTitle("[%T] %T", "Render Distance", client, "Client Settings", client);
+	
 	char buffer[24];
-	bEnabled[client] ? Format(buffer, 24, "Enable [X]") : Format(buffer, 24, "Enable [-]");
+
+	FormatEx(buffer, sizeof(buffer), "%T [%s]", "Enabled", client, bEnabled[client] ? "X" : "-");
 	menu.AddItem("1", buffer);
-	bBind[client] ? Format(buffer, 24, "Bind Mode [X]") : Format(buffer, 24, "Bind Mode [-]");
+
+	FormatEx(buffer, sizeof(buffer), "%T [%s]", "Bind Mode", client, bBind[client] ? "X" : "-");
 	menu.AddItem("2", buffer);
-	bDontRenderFire[client] ? Format(buffer, 24, "Dont Render Fire [X]") : Format(buffer, 24, "Dont Render Fire [-]");
+
+	FormatEx(buffer, sizeof(buffer), "%T [%s]", "Dont Render Fire", client, bDontRenderFire[client] ? "X" : "-");
 	menu.AddItem("3", buffer);
-	Format(buffer, 24, "Distance: %d", iDistance[client]);
+
+	FormatEx(buffer, sizeof(buffer), "%T: %d", "Distance", client, iDistance[client]);
 	menu.AddItem("4", buffer);
 
-	menu.Display(client, 15);
+	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 void ShowDistanceMenu(int client)
@@ -135,7 +164,7 @@ void ShowDistanceMenu(int client)
 	Menu menu = new Menu(MenuHandlerDistance);
 
 	char buffer[24];
-	Format(buffer, 24, "Distance: %d", iDistance[client]);
+	FormatEx(buffer, 24, "Distance: %d", iDistance[client]);
 	menu.SetTitle(buffer);
 
 	menu.AddItem("800", "800");
@@ -148,32 +177,39 @@ void ShowDistanceMenu(int client)
 	menu.AddItem("3600", "3600");
 	menu.AddItem("4000", "4000");
 
-	menu.Display(client, 15);
+	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 int MenuHandlerRender(Menu menu, MenuAction action, int client, int choice)
 {
-	if (action == MenuAction_Select)
+	if(action == MenuAction_Select)
 	{
 		choice++;
+		char sEnabled[32], sDisabled[32];
+		FormatEx(sEnabled, sizeof(sEnabled), "{green}%T{default}", "Enabled", client);
+		FormatEx(sDisabled, sizeof(sDisabled), "{red}%T{default}", "Disabled", client);
+		
 		switch(choice)
 		{
 			case 1:
 			{
 				bEnabled[client] = !bEnabled[client];
-				PrintToChat(client, "\x03 Render Distance %sabled", bEnabled[client] ? "en" : "dis");
+				CPrintToChat(client, "%T %s", "Render Distance", client, bEnabled[client] ? sEnabled : sDisabled);
 				SetClientCookie(client, hCookieEnabled, bEnabled[client] ? "1" : "0");
 			}
 			case 2:
 			{
 				bBind[client] = !bBind[client];
-				PrintToChat(client, "\x03 Bind Mode %s", bBind[client] ? "enabled\n Do \"bind <command> +renderdistance\"" : "disabled");
+				char sBindUsage[64], sUsageText[96];
+				FormatEx(sBindUsage, sizeof(sBindUsage), "%T", "Bind Usage", client);
+				FormatEx(sUsageText, sizeof(sUsageText), "%s %s", sEnabled, sBindUsage);
+				CPrintToChat(client, "%T: %s", "Bind Mode", client, bBind[client] ? sUsageText : sDisabled);
 				SetClientCookie(client, hCookieBind, bBind[client] ? "1" : "0");
 			}
 			case 3:
 			{
 				bDontRenderFire[client] = !bDontRenderFire[client];
-				PrintToChat(client, "\x03 Rendering Fire %sabled", bDontRenderFire[client] ? "en" : "dis");
+				CPrintToChat(client, "%T: %s", "Dont Render Fire", client, bDontRenderFire[client] ? sEnabled : sDisabled);
 				SetClientCookie(client, hCookieRenderFire, bDontRenderFire[client] ? "1" : "0");
 			}
 			case 4:
@@ -188,6 +224,7 @@ int MenuHandlerRender(Menu menu, MenuAction action, int client, int choice)
 	{
 		menu.Close();
 	}
+
 	return 0;
 }
 
@@ -215,6 +252,7 @@ int MenuHandlerDistance(Menu menu, MenuAction action, int client, int choice)
 			menu.Close();
 		}
 	}
+
 	return 0;
 }
 
