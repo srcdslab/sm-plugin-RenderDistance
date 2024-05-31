@@ -8,16 +8,14 @@
 
 #pragma newdecls required
 
-static const char entityList[][] = { "_firesmoke", "ai_network", "color_correction", "env_entity_igniter", "env_explosion", "env_fade", \
-									"env_fire", "env_hudhint", "env_physexplosion", "env_shake", "env_sound", "env_soundscape_triggerable", \
-									"env_sprite", "env_sun", "env_tonemap_controller", "filter_activator_name", "filter_activator_team", \
-									"filter_damage_type", "func_breakable", "func_brush", "func_bomb_target", "func_button", "func_door", \
-									"func_dustmotes", "func_physbox_multiplayer", "func_buyzone", "holiday_gift", "info_overlay", \
-									"info_particle_system", "info_player_counterterrorist", "info_player_terrorist", "info_target", \
-									"info_teleport_destination", "infodecal", "item_assaultsuit", "item_defuser", "item_kevlar", \
+static const char entityList[][] = { "env_entity_igniter", "env_explosion", "env_fade", "env_fire", "env_hudhint", \
+									"env_physexplosion", "env_sprite", "env_sun", \
+									"func_breakable", "func_brush", "func_bomb_target", "func_button", "func_door", \
+									"func_dustmotes", "func_physbox_multiplayer", "info_overlay", "info_particle_system", \
+									"info_player_counterterrorist", "info_player_terrorist", "infodecal", \
+									"item_assaultsuit", "item_defuser", "item_kevlar", \
 									"light", "light_environment", "light_spot", "move_rope", "path_track", "planted_c4", \
-									"point_viewcontrol", "shadow_control", "simple_bot", "soundent", "spraycan", \
-									"trigger_soundscape", "vgui_screen", "worldspawn"};
+									"point_viewcontrol", "shadow_control", "vgui_screen", "worldspawn"};
 
 bool bEnabled[MAXPLAYERS + 1],
 	bBind[MAXPLAYERS + 1],
@@ -38,7 +36,7 @@ public Plugin myinfo =
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.1",
+	version = "3.0.2",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
