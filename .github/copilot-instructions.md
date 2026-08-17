@@ -16,19 +16,16 @@ This repository contains a SourcePawn plugin for SourceMod called **RenderDistan
 
 ### Core Technologies
 - **Language**: SourcePawn
-- **Platform**: SourceMod 1.11.0+ (compatible with 1.12+)
-- **Build System**: SourceKnight (NOT traditional spcomp)
+- **Platform**: SourceMod 1.12+
+- **Build System**: Native GitHub Actions (spcomp via `rumblefrog/setup-sp`)
 - **Games**: Counter-Strike: Global Offensive, Counter-Strike: Source
 - **Dependencies**: MultiColors plugin for colored chat messages
 
-### Build System - SourceKnight
-This project uses **SourceKnight** instead of traditional SourceMod compilation:
-- Configuration file: `sourceknight.yaml`
-- Build command: `sourceknight build` (handled by CI)
-- Dependencies are automatically downloaded and managed
-- Output goes to `/addons/sourcemod/plugins`
-
-**Important**: Do NOT use `spcomp` directly. The build system handles compilation through GitHub Actions.
+### Build System - GitHub Actions
+This project builds with **spcomp** directly through GitHub Actions (`.github/workflows/ci.yml`):
+- Dependencies are cloned into `deps/` and their `include` files copied into `addons/sourcemod/scripting/include` before compilation
+- Compilation is done via `spcomp -i include -o ../plugins/RenderDistance.smx RenderDistance.sp`
+- Output goes to `addons/sourcemod/plugins`
 
 ## File Structure
 
@@ -45,8 +42,6 @@ addons/sourcemod/
 ├── workflows/
 │   └── ci.yml                     # CI/CD pipeline
 └── copilot-instructions.md        # This file
-
-sourceknight.yaml                   # Build configuration
 ```
 
 ## Code Style & Standards (Project-Specific)
@@ -145,7 +140,7 @@ sourceknight.yaml                   # Build configuration
 ## Troubleshooting Common Issues
 
 ### Build Failures
-- Check SourceKnight configuration in `sourceknight.yaml`
+- Check the dependency clone/copy steps in `.github/workflows/ci.yml`
 - Verify dependency versions (SourceMod, MultiColors)
 - Review CI logs in GitHub Actions
 
