@@ -25,24 +25,25 @@ bool bEnabled[MAXPLAYERS + 1],
 int iDistance[MAXPLAYERS + 1],
 	iFlameEntity = -1;
 	
-Handle hCookieEnabled,
+Cookie hCookieEnabled,
 	hCookieBind,
 	hCookieDistance,
-	hCookieRenderFire,
-	hSDkCall;
+	hCookieRenderFire;
+
+Handle hSDkCall;
 
 public Plugin myinfo = 
 {
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.3",
+	version = "3.0.4",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
 public void OnPluginStart()
 {
-	Handle gameData = LoadGameConfigFile("render_distance.games");
+	GameData gameData = new GameData("render_distance.games");
 	if(!gameData) 
 	{
 		SetFailState("Failed to load gamedata \"render_distance.games.txt\"");
@@ -65,10 +66,10 @@ public void OnPluginStart()
 	RegConsoleCmd("+renderdistance", cmdBind);
 	RegConsoleCmd("-renderdistance", cmdBind);
 
-	hCookieEnabled = RegClientCookie("rendist_enabled", "Render Enable", CookieAccess_Public);
-	hCookieBind = RegClientCookie("rendist_bind", "Render Bind Mode", CookieAccess_Public);
-	hCookieDistance = RegClientCookie("rendist_distance", "Render Distance", CookieAccess_Public);
-	hCookieRenderFire = RegClientCookie("rendist_renderfire", "Render Fire", CookieAccess_Public);
+	hCookieEnabled = new Cookie("rendist_enabled", "Render Enable", CookieAccess_Public);
+	hCookieBind = new Cookie("rendist_bind", "Render Bind Mode", CookieAccess_Public);
+	hCookieDistance = new Cookie("rendist_distance", "Render Distance", CookieAccess_Public);
+	hCookieRenderFire = new Cookie("rendist_renderfire", "Render Fire", CookieAccess_Public);
 
 	SetCookieMenuItem(ShowRenderCookieHandler, 0, "Show Render Distance Settings");
 }
@@ -86,16 +87,16 @@ public void OnClientCookiesCached(int client)
 {
 	char buffer[4];
 
-	GetClientCookie(client, hCookieEnabled, buffer, 4);
+	hCookieEnabled.Get(client, buffer, 4);
 	bEnabled[client] = view_as<bool>(StringToInt(buffer));
 
-	GetClientCookie(client, hCookieBind, buffer, 4);
+	hCookieBind.Get(client, buffer, 4);
 	bBind[client] = view_as<bool>(StringToInt(buffer));
 
-	GetClientCookie(client, hCookieDistance, buffer, 4);
+	hCookieDistance.Get(client, buffer, 4);
 	iDistance[client] = StringToInt(buffer) < 800 ? 800 : StringToInt(buffer);
 
-	GetClientCookie(client, hCookieRenderFire, buffer, 4);
+	hCookieRenderFire.Get(client, buffer, 4);
 	bDontRenderFire[client] = view_as<bool>(StringToInt(buffer));
 }
 
@@ -193,7 +194,7 @@ int MenuHandlerRender(Menu menu, MenuAction action, int client, int choice)
 			{
 				bEnabled[client] = !bEnabled[client];
 				CPrintToChat(client, "%T %s", "Render Distance", client, bEnabled[client] ? sEnabled : sDisabled);
-				SetClientCookie(client, hCookieEnabled, bEnabled[client] ? "1" : "0");
+				hCookieEnabled.Set(client, bEnabled[client] ? "1" : "0");
 			}
 			case 2:
 			{
@@ -202,13 +203,13 @@ int MenuHandlerRender(Menu menu, MenuAction action, int client, int choice)
 				FormatEx(sBindUsage, sizeof(sBindUsage), "%T", "Bind Usage", client);
 				FormatEx(sUsageText, sizeof(sUsageText), "%s %s", sEnabled, sBindUsage);
 				CPrintToChat(client, "%T: %s", "Bind Mode", client, bBind[client] ? sUsageText : sDisabled);
-				SetClientCookie(client, hCookieBind, bBind[client] ? "1" : "0");
+				hCookieBind.Set(client, bBind[client] ? "1" : "0");
 			}
 			case 3:
 			{
 				bDontRenderFire[client] = !bDontRenderFire[client];
 				CPrintToChat(client, "%T: %s", "Dont Render Fire", client, bDontRenderFire[client] ? sEnabled : sDisabled);
-				SetClientCookie(client, hCookieRenderFire, bDontRenderFire[client] ? "1" : "0");
+				hCookieRenderFire.Set(client, bDontRenderFire[client] ? "1" : "0");
 			}
 			case 4:
 			{
@@ -239,7 +240,7 @@ int MenuHandlerDistance(Menu menu, MenuAction action, int client, int choice)
 			ShowDistanceMenu(client);
 			char value[6];
 			FormatEx(value, sizeof(value), "%d", iDistance[client]);
-			SetClientCookie(client, hCookieDistance, value);
+			hCookieDistance.Set(client, value);
 		}
 		case MenuAction_Cancel:
 		{
