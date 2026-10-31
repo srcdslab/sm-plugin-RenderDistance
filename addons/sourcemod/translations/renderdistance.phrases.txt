@@ -3,35 +3,77 @@
 	"Render Distance"
 	{
 		"en"		"Render Distance"
+		"fr"		"Distance d'affichage"
+		"ru"		"Дальность прорисовки"
+		"es"		"Distancia de renderizado"
+		"de"		"Sichtweite"
+		"pt"		"Distância de renderização"
+		"chi"		"渲染距离"
 	}
 
 	"Enabled"
 	{
 		"en"		"Enabled"
+		"fr"		"Activé"
+		"ru"		"Включено"
+		"es"		"Activado"
+		"de"		"Aktiviert"
+		"pt"		"Ativado"
+		"chi"		"开启"
 	}
 
 	"Disabled"
 	{
 		"en"		"Disabled"
+		"fr"		"Désactivé"
+		"ru"		"Выключено"
+		"es"		"Desactivado"
+		"de"		"Deaktiviert"
+		"pt"		"Desativado"
+		"chi"		"关闭"
 	}
 
 	"Bind Mode"
 	{
 		"en"		"Bind Mode"
+		"fr"		"Mode bind"
+		"ru"		"Режим бинда"
+		"es"		"Modo bind"
+		"de"		"Bind-Modus"
+		"pt"		"Modo bind"
+		"chi"		"绑定模式"
 	}
 
 	"Bind Usage"
 	{
 		"en"		"Do \"bind <key> +renderdistance\""
+		"fr"		"Tapez \"bind <touche> +renderdistance\""
+		"ru"		"Введите \"bind <клавиша> +renderdistance\""
+		"es"		"Escribe \"bind <tecla> +renderdistance\""
+		"de"		"Gib \"bind <Taste> +renderdistance\" ein"
+		"pt"		"Digite \"bind <tecla> +renderdistance\""
+		"chi"		"输入\"bind <按键> +renderdistance\""
 	}
 
 	"Dont Render Fire"
 	{
 		"en"		"Don't Render Fire"
+		"fr"		"Masquer le feu"
+		"ru"		"Не отображать огонь"
+		"es"		"Ocultar el fuego"
+		"de"		"Feuer nicht rendern"
+		"pt"		"Ocultar o fogo"
+		"chi"		"不渲染火焰"
 	}
 
 	"Distance"
 	{
 		"en"		"Distance"
+		"fr"		"Distance"
+		"ru"		"Дистанция"
+		"es"		"Distancia"
+		"de"		"Distanz"
+		"pt"		"Distância"
+		"chi"		"距离"
 	}
 }
