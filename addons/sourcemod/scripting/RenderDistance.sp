@@ -37,7 +37,7 @@ public Plugin myinfo =
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.4",
+	version = "3.0.5",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
@@ -126,7 +126,7 @@ public Action cmdBind(int client, int args)
 	if (bHolding[client] != bEnabled[client])
 		bEnabled[client] = bHolding[client];
 
-	char sEnabled[32], sDisabled[32];
+	char sEnabled[64], sDisabled[64];
 	FormatEx(sEnabled, sizeof(sEnabled), "{green}%T{default}", "Enabled", client);
 	FormatEx(sDisabled, sizeof(sDisabled), "{red}%T{default}", "Disabled", client);
 	CPrintToChat(client, "[%T] %s", "Render Distance", client, bHolding[client] ? sEnabled : sDisabled);
@@ -138,10 +138,9 @@ void ShowRenderMenu(int client)
 {
 	Menu menu = new Menu(MenuHandlerRender);
 
-	menu.SetTitle("Render Distance Control");
 	menu.SetTitle("[%T] %T", "Render Distance", client, "Client Settings", client);
 	
-	char buffer[24];
+	char buffer[64];
 
 	FormatEx(buffer, sizeof(buffer), "%T [%s]", "Enabled", client, bEnabled[client] ? "X" : "-");
 	menu.AddItem("1", buffer);
@@ -162,8 +161,8 @@ void ShowDistanceMenu(int client)
 {
 	Menu menu = new Menu(MenuHandlerDistance);
 
-	char buffer[24];
-	FormatEx(buffer, 24, "Distance: %d", iDistance[client]);
+	char buffer[64];
+	FormatEx(buffer, sizeof(buffer), "%T: %d", "Distance", client, iDistance[client]);
 	menu.SetTitle(buffer);
 
 	menu.AddItem("800", "800");
@@ -184,7 +183,7 @@ int MenuHandlerRender(Menu menu, MenuAction action, int client, int choice)
 	if(action == MenuAction_Select)
 	{
 		choice++;
-		char sEnabled[32], sDisabled[32];
+		char sEnabled[64], sDisabled[64];
 		FormatEx(sEnabled, sizeof(sEnabled), "{green}%T{default}", "Enabled", client);
 		FormatEx(sDisabled, sizeof(sDisabled), "{red}%T{default}", "Disabled", client);
 		
