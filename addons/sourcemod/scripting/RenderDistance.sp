@@ -8,6 +8,11 @@
 
 #pragma newdecls required
 
+// SolidType_t and SolidFlags_t values from the SDK (public/const.h)
+#define SOLID_NONE 0
+#define SOLID_BBOX 2
+#define FSOLID_FORCE_WORLD_ALIGNED 0x0040
+
 static const char entityList[][] = { "env_entity_igniter", "env_explosion", "env_fade", "env_fire", "env_hudhint", \
 									"env_physexplosion", "env_sprite", "env_sun", \
 									"func_breakable", "func_brush", "func_bomb_target", "func_button", "func_door", \
@@ -30,36 +35,26 @@ Cookie hCookieEnabled,
 	hCookieDistance,
 	hCookieRenderFire;
 
-Handle hSDkCall;
+// entityList as a set, filled once: OnEntityCreated runs for every entity
+StringMap g_smEntityList;
 
 public Plugin myinfo = 
 {
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.5",
+	version = "3.0.6",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
 public void OnPluginStart()
 {
-	GameData gameData = new GameData("render_distance.games");
-	if(!gameData) 
-	{
-		SetFailState("Failed to load gamedata \"render_distance.games.txt\"");
-	}
-
 	LoadTranslations("renderdistance.phrases.txt");
 	LoadTranslations("clientprefs.phrases.txt");
-	
-	StartPrepSDKCall(SDKCall_EntityList);
-	PrepSDKCall_SetFromConf(gameData, SDKConf_Signature, "CGlobalEntityList::FindEntityInSphere()");
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_CBaseEntity, SDKPass_Pointer, VDECODE_FLAG_ALLOWNULL | VDECODE_FLAG_ALLOWWORLD);
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
-	hSDkCall = EndPrepSDKCall();
-	delete gameData;
+
+	g_smEntityList = new StringMap();
+	for (int i = 0; i < sizeof(entityList); i++)
+		g_smEntityList.SetValue(entityList[i], true);
 
 	RegConsoleCmd("sm_renderdistance", cmdRenderDistance);
 	RegConsoleCmd("sm_render", cmdRenderDistance);
@@ -269,14 +264,8 @@ public void OnEntityCreated(int entity, const char[] classname)
 	}
 	else
 	{
-		for(int i; i < sizeof(entityList); i++)
-		{
-			if(!strcmp(classname, entityList[i]))
-			{
-				hook = true;
-				break;
-			}
-		}
+		bool bListed;
+		hook = g_smEntityList.GetValue(classname, bListed);
 	}
 
 	if (hook)
@@ -298,20 +287,56 @@ public Action DoTransmit(int entity, int client)
 	
 	static float vec[3];
 	GetClientAbsOrigin(client, vec);
-	
-	int i = -1;
-	while ((i = FindEntityInSphere(i, vec, float(iDistance[client]))) != -1) 
+
+	return IsEntityInSphere(entity, vec, float(iDistance[client])) ? Plugin_Continue : Plugin_Handled;
+}
+
+// The test CGlobalEntityList::FindEntityInSphere() runs on each entity, run on this entity only.
+// Looping over FindEntityInSphere() until it returned this entity walked the whole entity list
+// for every entity and every client, on every tick.
+// The sphere center goes into the entity collision space (CCollisionProperty::WorldToCollisionSpace),
+// then gets tested against the entity bounds (IsBoxIntersectingSphere).
+static bool IsEntityInSphere(int entity, const float vecCenter[3], float radius)
+{
+	float vecOrigin[3], vecMins[3], vecMaxs[3], vecRel[3];
+	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vecOrigin);
+	GetEntPropVector(entity, Prop_Send, "m_vecMins", vecMins);
+	GetEntPropVector(entity, Prop_Send, "m_vecMaxs", vecMaxs);
+	SubtractVectors(vecCenter, vecOrigin, vecRel);
+
+	// The bounds turn with the entity, unless they are world aligned (CCollisionProperty::IsBoundsDefinedInEntitySpace)
+	int iSolidType = GetEntProp(entity, Prop_Send, "m_nSolidType");
+	if (iSolidType != SOLID_NONE && iSolidType != SOLID_BBOX && !(GetEntProp(entity, Prop_Send, "m_usSolidFlags") & FSOLID_FORCE_WORLD_ALIGNED))
 	{
-		if (entity == i)
+		float vecAngles[3];
+		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vecAngles);
+
+		if (vecAngles[0] != 0.0 || vecAngles[1] != 0.0 || vecAngles[2] != 0.0)
 		{
-			return Plugin_Continue;
+			float vecFwd[3], vecRight[3], vecUp[3], vecWorld[3];
+			GetAngleVectors(vecAngles, vecFwd, vecRight, vecUp);
+			vecWorld = vecRel;
+
+			// Inverse rotation: the matrix columns are forward, left (-right) and up
+			vecRel[0] = GetVectorDotProduct(vecWorld, vecFwd);
+			vecRel[1] = -GetVectorDotProduct(vecWorld, vecRight);
+			vecRel[2] = GetVectorDotProduct(vecWorld, vecUp);
 		}
 	}
 
-	return Plugin_Handled;
-}
+	float fDistSq = 0.0;
+	for (int i = 0; i < 3; i++)
+	{
+		float fDelta;
+		if (vecRel[i] < vecMins[i])
+			fDelta = vecRel[i] - vecMins[i];
+		else if (vecRel[i] > vecMaxs[i])
+			fDelta = vecMaxs[i] - vecRel[i];
+		else
+			continue;
 
-static int FindEntityInSphere(int entity, const float vecCenter[3], float radius)
-{
-	return SDKCall(hSDkCall, entity, vecCenter, radius);
+		fDistSq += fDelta * fDelta;
+	}
+
+	return fDistSq < radius * radius;
 }
