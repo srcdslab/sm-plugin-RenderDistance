@@ -9,6 +9,12 @@
 		"de"		"Sichtweite"
 		"pt"		"Distância de renderização"
 		"chi"		"渲染距离"
+		"pl"		"Zasięg renderowania"
+		"tr"		"Render mesafesi"
+		"it"		"Distanza di rendering"
+		"ua"		"Дистанція промальовування"
+		"zho"		"渲染距離"
+		"cze"		"Vykreslovací vzdálenost"
 	}
 
 	"Enabled"
@@ -20,6 +26,12 @@
 		"de"		"Aktiviert"
 		"pt"		"Ativado"
 		"chi"		"开启"
+		"pl"		"Włączone"
+		"tr"		"Etkin"
+		"it"		"Attivato"
+		"ua"		"Увімкнено"
+		"zho"		"已啟用"
+		"cze"		"Zapnuto"
 	}
 
 	"Disabled"
@@ -31,6 +43,12 @@
 		"de"		"Deaktiviert"
 		"pt"		"Desativado"
 		"chi"		"关闭"
+		"pl"		"Wyłączone"
+		"tr"		"Devre dışı"
+		"it"		"Disattivato"
+		"ua"		"Вимкнено"
+		"zho"		"已停用"
+		"cze"		"Vypnuto"
 	}
 
 	"Bind Mode"
@@ -42,6 +60,12 @@
 		"de"		"Bind-Modus"
 		"pt"		"Modo bind"
 		"chi"		"绑定模式"
+		"pl"		"Tryb bind"
+		"tr"		"Bind modu"
+		"it"		"Modalità bind"
+		"ua"		"Режим бінда"
+		"zho"		"綁定模式"
+		"cze"		"Režim bind"
 	}
 
 	"Bind Usage"
@@ -53,6 +77,12 @@
 		"de"		"Gib \"bind <Taste> +renderdistance\" ein"
 		"pt"		"Digite \"bind <tecla> +renderdistance\""
 		"chi"		"输入\"bind <按键> +renderdistance\""
+		"pl"		"Wpisz \"bind <klawisz> +renderdistance\""
+		"tr"		"Şunu yaz: \"bind <tuş> +renderdistance\""
+		"it"		"Digita \"bind <tasto> +renderdistance\""
+		"ua"		"Введіть \"bind <клавіша> +renderdistance\""
+		"zho"		"輸入\"bind <按鍵> +renderdistance\""
+		"cze"		"Zadej \"bind <klávesa> +renderdistance\""
 	}
 
 	"Dont Render Fire"
@@ -64,6 +94,12 @@
 		"de"		"Feuer nicht rendern"
 		"pt"		"Ocultar o fogo"
 		"chi"		"不渲染火焰"
+		"pl"		"Nie renderuj ognia"
+		"tr"		"Ateşi gösterme"
+		"it"		"Non mostrare il fuoco"
+		"ua"		"Не відображати вогонь"
+		"zho"		"不渲染火焰"
+		"cze"		"Nevykreslovat oheň"
 	}
 
 	"Distance"
@@ -75,5 +111,11 @@
 		"de"		"Distanz"
 		"pt"		"Distância"
 		"chi"		"距离"
+		"pl"		"Dystans"
+		"tr"		"Mesafe"
+		"it"		"Distanza"
+		"ua"		"Дистанція"
+		"zho"		"距離"
+		"cze"		"Vzdálenost"
 	}
 }
