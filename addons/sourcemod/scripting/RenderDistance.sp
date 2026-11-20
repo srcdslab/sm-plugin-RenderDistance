@@ -300,13 +300,13 @@ static bool IsEntityInSphere(int entity, const float vecCenter[3], float radius)
 {
 	float vecOrigin[3], vecMins[3], vecMaxs[3], vecRel[3];
 	GetEntPropVector(entity, Prop_Data, "m_vecAbsOrigin", vecOrigin);
-	GetEntPropVector(entity, Prop_Send, "m_vecMins", vecMins);
-	GetEntPropVector(entity, Prop_Send, "m_vecMaxs", vecMaxs);
+	GetEntPropVector(entity, Prop_Data, "m_vecMins", vecMins);
+	GetEntPropVector(entity, Prop_Data, "m_vecMaxs", vecMaxs);
 	SubtractVectors(vecCenter, vecOrigin, vecRel);
 
 	// The bounds turn with the entity, unless they are world aligned (CCollisionProperty::IsBoundsDefinedInEntitySpace)
-	int iSolidType = GetEntProp(entity, Prop_Send, "m_nSolidType");
-	if (iSolidType != SOLID_NONE && iSolidType != SOLID_BBOX && !(GetEntProp(entity, Prop_Send, "m_usSolidFlags") & FSOLID_FORCE_WORLD_ALIGNED))
+	int iSolidType = GetEntProp(entity, Prop_Data, "m_nSolidType");
+	if (iSolidType != SOLID_NONE && iSolidType != SOLID_BBOX && !(GetEntProp(entity, Prop_Data, "m_usSolidFlags") & FSOLID_FORCE_WORLD_ALIGNED))
 	{
 		float vecAngles[3];
 		GetEntPropVector(entity, Prop_Data, "m_angAbsRotation", vecAngles);
