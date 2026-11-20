@@ -43,7 +43,7 @@ public Plugin myinfo =
 	name = "Render Distance Control",
 	author = "null138 & (ty ZombieFeyk)",
 	description = "Sets entities render distance and etc for players",
-	version = "3.0.6",
+	version = "3.0.8",
 	url = "https://steamcommunity.com/id/null138/"
 }
 
