@@ -33,8 +33,6 @@ This project builds with **spcomp** directly through GitHub Actions (`.github/wo
 addons/sourcemod/
 ├── scripting/
 │   └── RenderDistance.sp          # Main plugin source code
-├── gamedata/
-│   └── render_distance.games.txt  # Game signatures for SDK calls  
 └── translations/
     └── renderdistance.phrases.txt # Translation phrases
 
@@ -85,7 +83,7 @@ addons/sourcemod/
 ### 1. Entity Management
 - **Entity List**: Hardcoded array of entity classnames to monitor
 - **Hook System**: Uses `SDKHook(entity, SDKHook_SetTransmit, DoTransmit)`
-- **Sphere Detection**: Custom SDK call to `CGlobalEntityList::FindEntityInSphere()`
+- **Sphere Detection**: `IsEntityInSphere()` runs the `CGlobalEntityList::FindEntityInSphere()` box/sphere test on the transmitted entity only (no SDK call, no entity list walk)
 
 ### 2. Client Preferences  
 - **Cookies**: Persistent storage for user settings
@@ -93,8 +91,7 @@ addons/sourcemod/
 - **Bind Mode**: Temporary activation with key binds
 
 ### 3. Game Compatibility
-- **GameData**: Signatures for CS:GO and CS:Source in `render_distance.games.txt`
-- **Engine Differences**: Handles different memory layouts between games
+- No gamedata: only entity properties and SourceMod natives are used
 
 ## Common Development Tasks
 
@@ -130,12 +127,11 @@ addons/sourcemod/
 ### Testing Changes
 1. **Syntax Check**: CI will catch compilation errors
 2. **Manual Testing**: Deploy to test server with SourceMod
-3. **Gamedata Validation**: Test on both CS:GO and CS:Source if gamedata changes
 
 ### Release Process
 - Automatic releases on `master`/`main` branch
 - Tagged releases create versioned artifacts
-- Package includes compiled plugin + gamedata + translations
+- Package includes compiled plugin + translations
 
 ## Troubleshooting Common Issues
 
@@ -143,11 +139,6 @@ addons/sourcemod/
 - Check the dependency clone/copy steps in `.github/workflows/ci.yml`
 - Verify dependency versions (SourceMod, MultiColors)
 - Review CI logs in GitHub Actions
-
-### Gamedata Issues
-- Signatures may break with game updates
-- Check `render_distance.games.txt` for correct offsets
-- Test on both CS:GO and CS:Source
 
 ### Performance Problems
 - Monitor entity count and transmission frequency
@@ -163,7 +154,6 @@ addons/sourcemod/
 - **sdkhooks**: For entity transmission hooks
 
 ### External Interactions
-- **GameData**: Engine-specific memory signatures
 - **Translation System**: Multi-language support
 - **Menu System**: SourceMod's built-in menu framework
 
